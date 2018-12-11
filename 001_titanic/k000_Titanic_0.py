@@ -54,6 +54,11 @@ def save_result(file_name, trained_model, test_data):
 
 
 
+    
+
+
+
+
 
 # Visualisation
 import matplotlib as mpl
@@ -66,48 +71,29 @@ mpl.style.use( 'ggplot' )
 sns.set_style( 'white' )
 pylab.rcParams[ 'figure.figsize' ] = 8 , 6
 
+from ploters import plot_value_counts, plot_kde_on, plot_category_by_NA
 
 def draw_plots():
     
     data_train, data_test = load_data()
-
-    import matplotlib.pyplot as plt
     
     # value_counts
-    plt.title('dead/survive(0/1)')
-    data_train.Survived.value_counts().plot(kind='bar')
-    plt.ylabel('people')  
-    plt.show()
-    
-    plt.title('pclass distribution')
-    data_train.Pclass.value_counts().plot(kind="bar")
-    plt.ylabel('people')
-    plt.show()
-    
-    plt.title("embark location")
-    data_train.Embarked.value_counts().plot(kind='bar')
-    plt.ylabel("people")
-    plt.show()
+    plot_value_counts(data_train, 'Survived')
+    plot_value_counts(data_train, 'Pclass')
+    plot_value_counts(data_train, 'Embarked')
     
     # logistic scatter
     plt.title('Age and survival ratio')
     plt.scatter(data_train.Survived, data_train.Age, alpha=0.05)
     plt.ylabel("Age")                        
-    plt.grid(axis='y',b=True, which='major') 
+    plt.grid(axis='y',b=True, which='major') #?
     plt.show()
     
     
     # kde
-    plt.title('Age and pclass')
-    data_train.Age[data_train.Pclass == 1].plot(kind='kde')   
-    data_train.Age[data_train.Pclass == 2].plot(kind='kde')
-    data_train.Age[data_train.Pclass == 3].plot(kind='kde')
-    plt.xlabel("Age")# plots an axis lable
-    plt.ylabel("density") 
-    plt.legend(('1', '2','3'),loc='best') # sets our legend for our graph.
+    plot_kde_on(data_train, 'Age','Pclass')
     
     
-
     # primary analysis
     data_train.groupby('Pclass')['Survived'].agg(np.mean).plot('bar')
     data_train.groupby('Sex')['Survived'].agg(np.mean).plot('bar')
@@ -117,35 +103,27 @@ def draw_plots():
 
     
     # stacked bar
-    attr = 'Age'
-    withit = data_train.Survived[pd.notnull(data_train[attr])].value_counts()
-    without = data_train.Survived[pd.isnull(data_train[attr])].value_counts()
-    df=pd.DataFrame({'not null': withit, 'null': without}).transpose()
-    print(df)
-    df.plot(kind='bar', stacked=True)
-
-    attr = 'Cabin'
-    withit = data_train.Survived[pd.notnull(data_train[attr])].value_counts()
-    without = data_train.Survived[pd.isnull(data_train[attr])].value_counts()
-    df=pd.DataFrame({'not null': withit, 'null': without}).transpose()
-    print(df)
-    df.plot(kind='bar', stacked=True)
+    plot_category_by_NA(data_train, 'Age', 'Survived')
+    plot_category_by_NA(data_train, 'Cabin', 'Survived')
 
 
     #---------------------------------------------
     
     full = data_train.append( data_test , ignore_index = True )
-    titanic = full[ :891 ]
+    titanic = full[ :891]
 
     from ploters import plot_distribution, plot_categories, plot_correlation_map
 
     plot_correlation_map( titanic )
     
     # Plot distributions of Age of passangers who survived or did not survive
+    # upgrade of plot_kde_on : kde of 'var' by 'target'
+    plot_distribution( titanic , var = 'Age' , target = 'Survived')
     plot_distribution( titanic , var = 'Age' , target = 'Survived' , row = 'Sex' )
     
     # Plot survival rate by Embarked
     plot_categories( titanic , cat = 'Embarked' , target = 'Survived' )
+    # By default the height of the bars/points shows the mean and 95% confidence interval
 
 
 
@@ -153,45 +131,30 @@ def draw_plots():
 
     data = data_train.copy()
     
-    # deal with age for plots
-    data['Age'] = data['Age'].fillna(data['Age'].median())
+    df = data
+    plt.scatter(df['Age'], df['Fare'], c=df['Survived'], s=df['Fare'], cmap='seismic', alpha=0.8) 
+    #https://matplotlib.org/examples/color/colormaps_reference.html
+    
+    from ploters import StackedPloter
+    sp = StackedPloter(data)
+
+    # some plots   
+    sp.plot('Sex', 'Survived')
+    
+    plt.figure()
+    sp.plot('Fare', 'Survived')
     
     
-    # some plots
-    data['Died'] = 1 - data['Survived']
-    data.groupby('Sex').agg('sum')[['Survived', 'Died']].plot( kind='bar', figsize=(25, 7), stacked=True, colors=['g', 'r'])
-    data.groupby('Sex').agg('mean')[['Survived', 'Died']].plot(kind='bar', figsize=(25, 7),stacked=True, colors=['g', 'r'])                                                         
-    fig = plt.figure(figsize=(25, 7))
+    sns.violinplot(x='Embarked', y='Fare', hue='Survived', data=data, palette={0: "r", 1: "g"})
+        fig = plt.figure(figsize=(25, 7))
     
-    
-    sns.violinplot(x='Sex', y='Age', 
-                   hue='Survived', data=data, 
+    sns.violinplot(x='Sex', y='Age', hue='Survived', 
+                   data=data, 
                    split=True,
                    palette={0: "r", 1: "g"})
+    # it is like plot distribution with row=x, var=y, target=hue
+    # personal perfers the plot_distribution
     
-    figure = plt.figure(figsize=(25, 7))
-    
-    plt.hist([data[data['Survived'] == 1]['Fare'], data[data['Survived'] == 0]['Fare']], 
-             stacked=True, color = ['g','r'],
-             bins = 50, label = ['Survived','Dead'])
-    plt.xlabel('Fare')
-    plt.ylabel('Number of passengers')
-    plt.legend()
-    
-    plt.figure(figsize=(25, 7))
-    ax = plt.subplot()
-    
-    ax.scatter(data[data['Survived'] == 1]['Age'], data[data['Survived'] == 1]['Fare'], 
-               c='green', s=data[data['Survived'] == 1]['Fare'])
-    ax.scatter(data[data['Survived'] == 0]['Age'], data[data['Survived'] == 0]['Fare'], 
-               c='red', s=data[data['Survived'] == 0]['Fare'])
-    
-    ax = plt.subplot()
-    ax.set_ylabel('Average fare')
-    data.groupby('Pclass').mean()['Fare'].plot(kind='bar', figsize=(25, 7), ax = ax)
-    
-    fig = plt.figure(figsize=(25, 7))
-    sns.violinplot(x='Embarked', y='Fare', hue='Survived', data=data, split=True, palette={0: "r", 1: "g"})
 
 
 
