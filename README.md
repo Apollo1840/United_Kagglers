@@ -1,95 +1,92 @@
-# Heading
-## Subheads
-### 1, section
-#### 1) subsection
-##### a. point
-
-
 
 # introduction
 
 Alice.py is your primary teacher of data analysis and Kaggle.
 
-# Frist
-
-frist we need to know the data
+In this md, we will introduce how to deal with Kaggle task. It is like a 武功秘籍.
 
 
-# visualize some thing
+# 1, Frist step
 
+Frist we need to know the data, understand the meaning of attributes and visualize some performance and relations.
+This step is helpful for us to choose and generate features, sometimes totally reform the problem.
+
+## visualization
 
 from technology perspective we have:
 
-## value_counts
+#### 1)value_counts
 
     df.column.value_counts.plot('bar')
 
 to valuecount the column.
 
-## ratio compare by:
+#### 2)ratio compare by:
     
     df.groupby('Pclass')['Survived'].agg(np.mean).plot('bar')
 
-## plot kde of something for different category.
+#### 3)kde plot 
+Plot kde of something for different category.
 
     serie.plot('kde')
     
-    use plot_distribution or violin plot.
-    
-    or multi-boxplot
+use plot_distribution or violin plot, or multi-boxplot
     
 
-# clean the data
+# 2, Clean the data
 
 ## fillNA
 
 we have several ways to fill the NA:
 
-##### a.trival approaches: 
+##### a.Trival approaches: 
 0, forward fill, backward fill
 
-##### b. categoral approach: 
-find the most related columns, use the mean or median in this category to predict.
 
-##### c. model approach: 
-use some model trained on some related columns to fill the NA.
+##### b. Categoral approach: 
+Find the most related columns, use the mean or median in this category to predict.
 
 
-# feature engineering
+##### c. Model approach: 
+Use some model trained on some related columns to fill the NA.
 
-## get_dummies
 
-## get_dummies_na
+
+# 3, Feature engineering
+
+##### a. get_dummies
+
+##### b. get_dummies_na
 differentiate the entry with and without information in this column.
 
-## cut
+##### c. cut
 cut the continues value to discrete
 
-## String comprehension
+##### d. String comprehension
 dig information out of string
 
 
-# preprocessing
+# 4, Preprocessing
 
-## normalize the data
+##### a. normalize the data
 
-# Build Model
+# 5, Build Model
 Things we probably need to adjust:
 ##### a.C
 ##### b.penalty
 ##### c.tol
 
 
-# evaluate the model
-use cross validation
+# 6, Evaluate the model
+Use cross validation
 
-# Model Augmentation
+# 7, Model Augmentation
 
-## Bagging
+##### a. Bagging
 
-## votingClassifier
+##### b. votingClassifier
 
-## grid search
+##### c. grid search
 
 
 
