@@ -14,6 +14,9 @@ DATA_PATH = 'datasets\\{}\\'.format(PROJECT_NAME)
 
 
 
+
+
+
 ###########################################################################
 # 1 load data
 import os
@@ -47,6 +50,8 @@ data_train, data_test = load_data()
     
 '''
 
+
+
 ###########################################################################
 # 2 check column
 import matplotlib.pyplot as plt
@@ -56,6 +61,7 @@ from ploters import plot_value_counts
 plot_value_counts(data_train, 'Survived')
 plot_value_counts(data_train, 'Pclass')
 plot_value_counts(data_train, 'Embarked')
+
 
 
 
@@ -119,6 +125,16 @@ plot_ratio( data_train, ycol='Survived', xcol = 'Embarked')
 
 
 
+
+
+
+
+
+
+
+
+
+
 # ======================================================================
 # 4 data cleanning
 df = data_train
@@ -177,6 +193,11 @@ title = pd.get_dummies( title, prefix='Title')
 full_X = pd.concat( [ pclass, title, sex, Age, family, ticket, Fare , cabin, embarked] , axis=1 )
   
     
+
+
+
+
+
 
 
 # ======================================================================

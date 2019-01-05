@@ -8,7 +8,7 @@ In this md, we will introduce how to deal with Kaggle task. It is like a 武功�
 
 # 1, Frist step
 
-Frist we need to know the data, understand the meaning of attributes and visualize some performance and relations.
+Frist we need to <b>know the data</b>, understand the meaning of attributes and visualize some performance and relations.
 This step is helpful for us to choose and generate features, sometimes totally reform the problem.
 
 ## visualization
@@ -39,42 +39,42 @@ use plot_distribution or violin plot, or multi-boxplot
 
 we have several ways to fill the NA:
 
-##### a.Trival approaches: 
+#### 1) Trival approaches: 
 0, forward fill, backward fill
 
 
-##### b. Categoral approach: 
+#### 2) Categoral approach: 
 Find the most related columns, use the mean or median in this category to predict.
 
 
-##### c. Model approach: 
+#### 3) Model approach: 
 Use some model trained on some related columns to fill the NA.
 
 
 
 # 3, Feature engineering
 
-##### a. get_dummies
+#### 1) get_dummies
 
-##### b. get_dummies_na
+#### 2) get_dummies_na
 differentiate the entry with and without information in this column.
 
-##### c. cut
+#### 3) cut
 cut the continues value to discrete
 
-##### d. String comprehension
+#### 4) String comprehension
 dig information out of string
 
 
 # 4, Preprocessing
 
-##### a. normalize the data
+#### 1) normalize the data
 
 # 5, Build Model
 Things we probably need to adjust:
-##### a.C
-##### b.penalty
-##### c.tol
+#### 2) C
+#### 3)penalty
+#### 4)tol
 
 
 # 6, Evaluate the model
@@ -82,11 +82,11 @@ Use cross validation
 
 # 7, Model Augmentation
 
-##### a. Bagging
+#### 1) Bagging
 
-##### b. votingClassifier
+#### 2) votingClassifier
 
-##### c. grid search
+#### 3) grid search
 
 
 
