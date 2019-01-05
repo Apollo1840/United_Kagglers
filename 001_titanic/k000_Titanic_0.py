@@ -140,8 +140,6 @@ def draw_plots():
 
     # some plots   
     sp.plot('Sex', 'Survived')
-    
-    plt.figure()
     sp.plot('Fare', 'Survived')
     
     

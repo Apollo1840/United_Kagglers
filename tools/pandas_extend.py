@@ -4,32 +4,6 @@
 import pandas as pd
 import numpy as np
 
-def choose_columns(df, dt_type='float64'):
-    # pick all the column names which contains dt_type data 
-    # example : choose_columns(df2, np.number)
-    
-    return list(df.iloc[0:1,:].select_dtypes(include = dt_type).columns)
-
-
-def columns_with_na(df):
-    # return names of columns who has NA
-    
-    return list(df.columns[df.isna().any()])
-
-def quantile_cut_column(df, column_name, quantile_ratio=[0,0.2,0.4,0.6,0.8,1], labels = ['small','medium-small','medium','medium-large','large']):
-    # cut the column by quantile, returns the new df (with a new column  '..._level')
-    
-    # use case:
-    # df2=quantile_cut_column(df, 'title_year')
-    # print(df2)
-    
-    bins = list(df[column_name].quantile(quantile_ratio))
-    print(bins)
-    bins[0]=bins[0]-0.1
-    df[column_name + '_level']=list(pd.cut(df[column_name], bins=bins, labels=labels))
-    return df
-
-
 class da_opt():
     """
     example:  
@@ -54,6 +28,73 @@ class da_opt():
         m=np.nanmean(x)
         segma = np.std([j for j in x if j >= x.quantile(0.1) and j <= x.quantile(0.9)])
         return np.array([np.abs(j-m)/segma for j in x])
+    
+
+def choose_columns(df, dt_type='float64'):
+    # pick all the column names which contains dt_type data 
+    # example : choose_columns(df2, np.number)
+    
+    return list(df.iloc[0:1,:].select_dtypes(include = dt_type).columns)
+
+
+class pde():
+    def __init__(self, df):
+        self.df = df
+
+
+# NA    
+class NA_refiner(pde):
+    '''
+    How to us NA_refiner:
+
+    '''
+    
+    def show(self):
+         return list(self.df.columns[self.df.isna().any()])
+    
+    def fill_by(self, col, method, **kwargs):
+        if not isinstance(method, str):
+            # probably the trained model
+            
+            features = kwargs.get('features', None)
+            # feature to predict
+            
+            cols = kwargs.get('cols', None)
+            # cols used to predict
+            
+            na_rows_index = self.df[features].isnull().any(axis=1)
+            unknown = self.df.loc[ na_rows_index, cols].values
+            self.df.loc[na_rows_index, features ] = method.predict(unknown)
+            return self.df
+            
+        elif method == 'mean':
+            self.df[col].fillna(self.df[col].mean(),inplace=True)
+        elif method =='mode':
+            self.df[col].fillna(self.df[col].mode()[0],inplace=True)
+        elif method == 'None':
+            self.df[col].fillna('None',inplace=True)
+        elif method == 'meanBy':
+            pass # to do: check the mean of cols
+            
+
+
+        
+    
+def quantile_cut_column(df, column_name, quantile_ratio=[0,0.2,0.4,0.6,0.8,1], labels = ['small','medium-small','medium','medium-large','large']):
+    # cut the column by quantile, returns the new df (with a new column  '..._level')
+    
+    # use case:
+    # df2=quantile_cut_column(df, 'title_year')
+    # print(df2)
+    
+    bins = list(df[column_name].quantile(quantile_ratio))
+    print(bins)
+    bins[0]=bins[0]-0.1
+    df[column_name + '_level']=list(pd.cut(df[column_name], bins=bins, labels=labels))
+    return df
+
+
+
 
 def df_to_hm_data(df):
     # df to heatmap data of pyecharts, enumerate the df by row and column
@@ -157,6 +198,37 @@ def more_info(df):
     info = pd.DataFrame( { 'Variable' : var , 'Levels' : l , 'missing_value': na,'Datatype' : t } )
     info.sort_values( by = 'Levels' , inplace = True )
     return info
+
+
+
+# deprecated
+# -------------------------------------------------------------------------
+def columns_with_na(df):
+    # return names of columns who has NA
+    
+    return list(df.columns[df.isna().any()])
+
+def fillna_by(method, df, vcol):
+    if method == 'mean':
+        df[vcol].fillna(df[vcol].mean(),inplace=True)
+    elif method =='mode':
+        df[vcol].fillna(df[vcol].mode()[0],inplace=True)
+    elif method == 'None':
+        df[vcol].fillna('None',inplace=True)
+    
+    
+def fillna_model(df, model, features=[], cols=[]):
+    na_rows_index = df[features].isnull().any(axis=1)
+    unknown = df.loc[ na_rows_index, cols].values
+    df.loc[na_rows_index, features ] = model.predict(unknown)
+    return df
+
+
+
+
+
+
+
 
  
 if __name__=='__main__':

@@ -50,7 +50,7 @@ def generate_features(full, scaled=False):
     # 7 Parch       : ---
     # 8 Ticket      : x
     # 9 Fare        : predict Fare by average
-    # 10 Cabin      : predict cabin with U and take the first char
+    # 10 Cabin      : fill cabin with U and take the first char
     # 11 Embarked   : get_dummies
     
     
