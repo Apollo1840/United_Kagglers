@@ -1,10 +1,10 @@
 
-# introduction
+# Introduction
 
 Alice.py is your primary teacher of data analysis and Kaggle.
 
 In this md, we will introduce how to deal with Kaggle task. It is like a 武功秘籍.
-
+这里写的主要是方便记忆的理论，具体的代码实现会在 Alice.py 中和 tools 中体现。
 
 # 1, Frist step
 
@@ -70,11 +70,13 @@ dig information out of string
 
 #### 1) normalize the data
 
+由于有歧义，所以这里包括了两点。 其一是把skew的数据给拉成正态分布的，其二是使得其期望在0处，标准差为1。
+
 # 5, Build Model
 Things we probably need to adjust:
 #### 2) C
-#### 3)penalty
-#### 4)tol
+#### 3) penalty
+#### 4) tol
 
 
 # 6, Evaluate the model

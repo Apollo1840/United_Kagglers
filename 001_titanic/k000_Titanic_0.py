@@ -15,14 +15,14 @@ import os
 DATA_PATH='Projects\\datasets\\k000_titanic\\'
 
 
-def change_dir_to_DAT():
+def change_dir_to_UKs():
     path = os.getcwd()
-    while(os.path.basename(path) != 'Data-Analysis-Tools'):
+    while(os.path.basename(path) != 'United_Kagglers'):
         path = os.path.dirname(path)
     os.chdir(path)
 
 def load_data():
-    change_dir_to_DAT()
+    change_dir_to_UKs()
     
     # data_train = pd.read_csv(os.path.dirname(__file__)+'\\datasets\\k000_titanic\\train.csv')
     data_train = pd.read_csv(DATA_PATH + 'train.csv')

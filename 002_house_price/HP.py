@@ -1,28 +1,16 @@
 import pandas as pd 
 import numpy as np
 from pandas import Series,DataFrame
-import os
+
 
 DATA_PATH='Projects\\datasets\\k001_house_price\\'
 
+from tools.data_loader import load_data
 
-def change_dir_to_DAT():
-    path = os.getcwd()
-    while(os.path.basename(path) != 'Data-Analysis-Tools'):
-        path = os.path.dirname(path)
-    os.chdir(path)
+PROJECT_NAME = '002_house_price'
+DATA_PATH = 'datasets\\{}\\'.format(PROJECT_NAME)
 
-def load_data():
-    change_dir_to_DAT()
-    
-    # data_train = pd.read_csv(os.path.dirname(__file__)+'\\datasets\\k000_titanic\\train.csv')
-    data_train = pd.read_csv(DATA_PATH + 'train.csv')
-    data_test = pd.read_csv(DATA_PATH + 'test.csv')
-    
-    return data_train, data_test
-
-
-data_train, data_test = load_data()
+data_train, data_test = load_data(DATA_PATH)
 
 data_train.info()
 data_train.shape
@@ -33,17 +21,15 @@ data_test.shape
 full_X = data_train.append(data_test, ignore_index=True)
 
 
+'''
 #Checking for missing data
 NAs = pd.concat([data_train.isnull().sum(), data_test.isnull().sum()], axis=1, keys=['Train', 'Test'])
 NAs[NAs.sum(axis=1) > 0]
+'''
 
-'''
-# Prints R2 and RMSE scores
-from sklearn.metrics import r2_score, mean_squared_error
-def get_score(prediction, labels):    
-    print('R2: {}'.format(r2_score(prediction, labels)))
-    print('RMSE: {}'.format(np.sqrt(mean_squared_error(prediction, labels))))
-'''
+from tools.pandas_extend import NA_refiner
+nar = NA_refiner(data_train)
+nar.show()
 
 
 from sklearn.preprocessing import StandardScaler
@@ -59,6 +45,11 @@ def preprocess(df):
     df['TotalSF'] = df['TotalBsmtSF'] + df['1stFlrSF'] + df['2ndFlrSF']
     df.drop(['TotalBsmtSF', '1stFlrSF', '2ndFlrSF'], axis=1, inplace=True)
     
+     # some need categorize
+    num2str_columns = ['YrSold', 'MoSold', 'OverallCond','KitchenAbvGr']
+    for c in num2str_columns:
+         df[c] = df[c].astype(str)
+    
     df = get_dummie(df)
     
     # scale some attributes
@@ -69,12 +60,7 @@ def preprocess(df):
     return df
     
 def filling_NA(df):
-    
-    # some need categorize
-    num2str_columns = ['YrSold', 'MoSold', 'OverallCond','KitchenAbvGr']
-    for c in num2str_columns:
-         df[c] = df[c].astype(str)
-         
+   
     # some take mean
     fillWithMean_columns = ['LotFrontage']
     for c in fillWithMean_columns:
@@ -101,6 +87,8 @@ def filling_NA(df):
     
 
 def get_dummie(df):
+    
+    # funny
     # Getting Dummies from Condition1 and Condition2
     conditions = set([x for x in df['Condition1']] + [x for x in df['Condition2']])
     dummies = pd.DataFrame(data=np.zeros((len(df.index), len(conditions))),
@@ -194,7 +182,13 @@ use_model2output(GBest)
 
 
 
-
+'''
+# Prints R2 and RMSE scores
+from sklearn.metrics import r2_score, mean_squared_error
+def get_score(prediction, labels):    
+    print('R2: {}'.format(r2_score(prediction, labels)))
+    print('RMSE: {}'.format(np.sqrt(mean_squared_error(prediction, labels))))
+'''
 
 
 

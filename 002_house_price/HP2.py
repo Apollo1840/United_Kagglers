@@ -1,40 +1,29 @@
 import pandas as pd 
-pd.set_option('display.float_format', lambda x: '{:.3f}'.format(x)) #Limiting floats output to 3 decimal points
+# pd.set_option('display.float_format', lambda x: '{:.3f}'.format(x)) #Limiting floats output to 3 decimal points
 
 import numpy as np
 from pandas import Series,DataFrame
-import os
+
 
 DATA_PATH='Projects\\datasets\\k001_house_price\\'
 
+from tools.data_loader import load_data
 
-def change_dir_to_DAT():
-    path = os.getcwd()
-    while(os.path.basename(path) != 'Data-Analysis-Tools'):
-        path = os.path.dirname(path)
-    os.chdir(path)
+PROJECT_NAME = '002_house_price'
+DATA_PATH = 'datasets\\{}\\'.format(PROJECT_NAME)
 
-def load_data():
-    change_dir_to_DAT()
-    
-    # data_train = pd.read_csv(os.path.dirname(__file__)+'\\datasets\\k000_titanic\\train.csv')
-    data_train = pd.read_csv(DATA_PATH + 'train.csv')
-    data_test = pd.read_csv(DATA_PATH + 'test.csv')
-    
-    return data_train, data_test
-
-
-data_train, data_test = load_data()
+data_train, data_test = load_data(DATA_PATH)
 
 data_train.info()
 data_train.shape
 data_test.info()
 data_test.shape
 
+
 full_X = data_train.append(data_test, ignore_index=True)
 
-# ----------------------------------------------------------------------------
 
+# ----------------------------------------------------------------------------
 import seaborn as sns
 color = sns.color_palette()
 sns.set_style('darkgrid')
@@ -60,6 +49,12 @@ test_ID = test['Id']
 #Now drop the  'Id' colum since it's unnecessary for  the prediction process.
 train.drop("Id", axis = 1, inplace = True)
 test.drop("Id", axis = 1, inplace = True)
+
+
+
+# ---------------------------------------------------------------------------
+# the first step : normalize the predict value:
+
 
 import matplotlib.pyplot as plt
 fig, ax = plt.subplots()
@@ -128,6 +123,11 @@ all_data.drop(['SalePrice'], axis=1, inplace=True)
 print("all_data size is : {}".format(all_data.shape))
 
 
+from tools.pandas_extend import NA_refiner
+nar = NA_refiner(all_data)
+narsh = nar.show()
+
+'''
 all_data_na = (all_data.isnull().sum() / len(all_data)) * 100
 all_data_na = all_data_na.drop(all_data_na[all_data_na == 0].index).sort_values(ascending=False)[:30]
 missing_data = pd.DataFrame({'Missing Ratio' :all_data_na})
@@ -139,7 +139,7 @@ sns.barplot(x=all_data_na.index, y=all_data_na)
 plt.xlabel('Features', fontsize=15)
 plt.ylabel('Percent of missing values', fontsize=15)
 plt.title('Percent missing data by feature', fontsize=15)
-
+'''
 
 
 #Correlation map to see how features are correlated with SalePrice
@@ -148,14 +148,27 @@ plt.subplots(figsize=(12,9))
 sns.heatmap(corrmat, vmax=0.9, square=True)
 
 
+
+fillWithNA_columns = narsh[0:5].index  # narsh.index shows columns with NA value
+
+for c in fillWithNA_columns:
+    all_data[c] = all_data[c].fillna('No_such_thing')   
+
+
+'''
 all_data["PoolQC"] = all_data["PoolQC"].fillna("None")
 all_data["MiscFeature"] = all_data["MiscFeature"].fillna("None")
 all_data["Alley"] = all_data["Alley"].fillna("None")
 all_data["Fence"] = all_data["Fence"].fillna("None")
 all_data["FireplaceQu"] = all_data["FireplaceQu"].fillna("None")
+'''
+
+
 #Group by neighborhood and fill in missing value by the median LotFrontage of all the neighborhood
 all_data["LotFrontage"] = all_data.groupby("Neighborhood")["LotFrontage"].transform(
     lambda x: x.fillna(x.median()))
+
+
 for col in ('GarageType', 'GarageFinish', 'GarageQual', 'GarageCond'):
     all_data[col] = all_data[col].fillna('None')
 for col in ('GarageYrBlt', 'GarageArea', 'GarageCars'):
@@ -168,20 +181,28 @@ for col in ('BsmtQual', 'BsmtCond', 'BsmtExposure', 'BsmtFinType1', 'BsmtFinType
 all_data["MasVnrType"] = all_data["MasVnrType"].fillna("None")
 all_data["MasVnrArea"] = all_data["MasVnrArea"].fillna(0)
 all_data['MSZoning'] = all_data['MSZoning'].fillna(all_data['MSZoning'].mode()[0])
-all_data = all_data.drop(['Utilities'], axis=1)
+
+
 all_data["Functional"] = all_data["Functional"].fillna("Typ")
+all_data['MSSubClass'] = all_data['MSSubClass'].fillna("None")
+
 all_data['Electrical'] = all_data['Electrical'].fillna(all_data['Electrical'].mode()[0])
 all_data['KitchenQual'] = all_data['KitchenQual'].fillna(all_data['KitchenQual'].mode()[0])
 all_data['Exterior1st'] = all_data['Exterior1st'].fillna(all_data['Exterior1st'].mode()[0])
 all_data['Exterior2nd'] = all_data['Exterior2nd'].fillna(all_data['Exterior2nd'].mode()[0])
 all_data['SaleType'] = all_data['SaleType'].fillna(all_data['SaleType'].mode()[0])
-all_data['MSSubClass'] = all_data['MSSubClass'].fillna("None")
+
+
+all_data = all_data.drop(['Utilities'], axis=1)
+
+
+'''
 #Check remaining missing values if any 
 all_data_na = (all_data.isnull().sum() / len(all_data)) * 100
 all_data_na = all_data_na.drop(all_data_na[all_data_na == 0].index).sort_values(ascending=False)
 missing_data = pd.DataFrame({'Missing Ratio' :all_data_na})
 missing_data.head()
-
+'''
 
 #MSSubClass=The building class
 all_data['MSSubClass'] = all_data['MSSubClass'].apply(str)
@@ -202,6 +223,7 @@ cols = ('FireplaceQu', 'BsmtQual', 'BsmtCond', 'GarageQual', 'GarageCond',
         'BsmtFinType2', 'Functional', 'Fence', 'BsmtExposure', 'GarageFinish', 'LandSlope',
         'LotShape', 'PavedDrive', 'Street', 'Alley', 'CentralAir', 'MSSubClass', 'OverallCond', 
         'YrSold', 'MoSold')
+
 # process columns, apply LabelEncoder to categorical features
 for c in cols:
     lbl = LabelEncoder() 
@@ -233,6 +255,10 @@ lam = 0.15
 for feat in skewed_features:
     #all_data[feat] += 1
     all_data[feat] = boxcox1p(all_data[feat], lam)
+    
+# http://onlinestatbook.com/2/transformations/box-cox.html for box cox
+    
+# further more, we could calcaluate likelihood to get best lambda.
     
 #all_data[skewed_features] = np.log1p(all_data[skewed_features])
     

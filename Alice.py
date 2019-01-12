@@ -7,46 +7,21 @@
 
 '''
 
-# some predefined value for illustration
-PROJECT_FOLDER = 'United_Kagglers'
+###########################################################################
+# 1 load data
 PROJECT_NAME = '001_titanic'
 DATA_PATH = 'datasets\\{}\\'.format(PROJECT_NAME)
 
-
-
-
-
-
-###########################################################################
-# 1 load data
-import os
-
-def change_dir_to_UKa():
-    path = os.getcwd()
-    while(os.path.basename(path) != PROJECT_FOLDER):
-        path = os.path.dirname(path)
-    os.chdir(path)
-
-
-import pandas as pd 
-
-def load_data():
-    change_dir_to_UKa()
-    
-    # data_train = pd.read_csv(os.path.dirname(__file__)+'\\datasets\\k000_titanic\\train.csv')
-    data_train = pd.read_csv(DATA_PATH + 'train.csv')
-    data_test = pd.read_csv(DATA_PATH + 'test.csv')
-    
-    return data_train, data_test
-
-
-data_train, data_test = load_data()
+from tools.data_loader import load_data
+data_train, data_test = load_data(DATA_PATH)
 
 
 '''
     how to load data?
     1) download the data to datasets, put it into the project folder
-    2) copy the whole thing into your py file
+    2) in py file, define the 3 variable above
+    3) from tools.data_loader import load_data
+    4) data_train, data_test = load_data(DATA_PATH)
     
 '''
 

@@ -4,6 +4,63 @@
 import pandas as pd
 import numpy as np
 
+
+class pde():
+    def __init__(self, df):
+        self.df = df
+
+
+# NA    
+class NA_refiner(pde):
+    '''
+    How to us NA_refiner:
+
+    '''
+    
+    def show(self):
+        # print the names of columns with NA value and the number of NA values
+        
+        dfna = self.df.isnull().sum()/self.df.shape[0]*100
+        dfna = dfna[dfna > 0].sort_values(ascending = False)
+        print(dfna)
+        dfna.plot("bar")
+        
+        return dfna
+        
+         #return list(self.df.columns[self.df.isna().any()])
+    
+    def fill_by(self, col, method, **kwargs):
+        if not isinstance(method, str):
+            # probably the trained model
+            
+            features = kwargs.get('features', None)
+            # feature to predict
+            
+            cols = kwargs.get('cols', None)
+            # cols used to predict
+            
+            na_rows_index = self.df[features].isnull().any(axis=1)
+            unknown = self.df.loc[ na_rows_index, cols].values
+            self.df.loc[na_rows_index, features ] = method.predict(unknown)
+            return self.df
+            
+        elif method == 'mean':
+            self.df[col].fillna(self.df[col].mean(),inplace=True)
+        elif method =='mode':
+            self.df[col].fillna(self.df[col].mode()[0],inplace=True)
+        elif method == 'None':
+            self.df[col].fillna('None',inplace=True)
+        elif method == 'meanBy':
+            cols = kwargs.get('cols', None)
+            self.df[col] = self.df.groupby(cols)[col].transform(
+                    lambda x: x.fillna(x.mean()))
+        elif method == 'medienBy':
+            cols = kwargs.get('cols', None)
+            self.df[col] = self.df.groupby(cols)[col].transform(
+                    lambda x: x.fillna(x.median()))
+            
+
+
 class da_opt():
     """
     example:  
@@ -36,49 +93,6 @@ def choose_columns(df, dt_type='float64'):
     
     return list(df.iloc[0:1,:].select_dtypes(include = dt_type).columns)
 
-
-class pde():
-    def __init__(self, df):
-        self.df = df
-
-
-# NA    
-class NA_refiner(pde):
-    '''
-    How to us NA_refiner:
-
-    '''
-    
-    def show(self):
-         return list(self.df.columns[self.df.isna().any()])
-    
-    def fill_by(self, col, method, **kwargs):
-        if not isinstance(method, str):
-            # probably the trained model
-            
-            features = kwargs.get('features', None)
-            # feature to predict
-            
-            cols = kwargs.get('cols', None)
-            # cols used to predict
-            
-            na_rows_index = self.df[features].isnull().any(axis=1)
-            unknown = self.df.loc[ na_rows_index, cols].values
-            self.df.loc[na_rows_index, features ] = method.predict(unknown)
-            return self.df
-            
-        elif method == 'mean':
-            self.df[col].fillna(self.df[col].mean(),inplace=True)
-        elif method =='mode':
-            self.df[col].fillna(self.df[col].mode()[0],inplace=True)
-        elif method == 'None':
-            self.df[col].fillna('None',inplace=True)
-        elif method == 'meanBy':
-            pass # to do: check the mean of cols
-            
-
-
-        
     
 def quantile_cut_column(df, column_name, quantile_ratio=[0,0.2,0.4,0.6,0.8,1], labels = ['small','medium-small','medium','medium-large','large']):
     # cut the column by quantile, returns the new df (with a new column  '..._level')
