@@ -1,3 +1,17 @@
+# load data
+from tools.data_loader import load_data
+PROJECT_NAME = '003_digit'
+DATA_PATH = 'datasets\\{}\\'.format(PROJECT_NAME)
+
+data_train, data_test = load_data(DATA_PATH)
+
+#-----------------------------------------------------------
+
+Y_train = data_train["label"]
+X_train = data_train.drop(labels = ["label"],axis = 1) 
+del data_train 
+
+# ----------------------------------------------------------
 from time import time
 
 import pandas as pd
@@ -25,41 +39,18 @@ from keras.callbacks import ReduceLROnPlateau
 sns.set(style='white', context='notebook', palette='deep')
 
 
-import os
-
-DATA_PATH='Projects\\datasets\\k002_digit\\'
-
-
-def change_dir_to_DAT():
-    path = os.getcwd()
-    while(os.path.basename(path) != 'Data-Analysis-Tools'):
-        path = os.path.dirname(path)
-    os.chdir(path)
-
-def load_data():
-    change_dir_to_DAT()
-    
-    # data_train = pd.read_csv(os.path.dirname(__file__)+'\\datasets\\k000_titanic\\train.csv')
-    data_train = pd.read_csv(DATA_PATH + 'train.csv')
-    data_test = pd.read_csv(DATA_PATH + 'test.csv')
-    
-    return data_train, data_test
-
-
-data_train, data_test = load_data()
-
-Y_train = data_train["label"]
-X_train = data_train.drop(labels = ["label"],axis = 1) 
-del data_train 
-
 # ----------------------------------------------------------------
 # first analysis
 g = sns.countplot(Y_train)
-Y_train.value_counts()
+# Y_train.value_counts()
 
 # Check the data
 X_train.isnull().any().describe()
 data_test.isnull().any().describe()
+
+X_train.shape
+dim = np.sqrt(X_train.shape[1])
+dim
 
 # ----------------------------------------------------------------
 # data preprocessing
@@ -104,7 +95,9 @@ datagen.fit(X_train)
 # ----------------------------------------------------------------
 
 # Set the CNN model 
-# my CNN architechture is In -> [[Conv2D->relu]*2 -> MaxPool2D -> Dropout]*2 -> Flatten -> Dense -> Dropout -> Out
+# my CNN architechture is 
+
+# In -> [[Conv2D->relu]*2 -> MaxPool2D -> Dropout]*2 -> Flatten -> Dense -> Dropout -> Out
 
 model = Sequential()
 
@@ -147,6 +140,8 @@ learning_rate_reduction = ReduceLROnPlateau(monitor='val_acc',
 
 
 epochs = 3 # Turn epochs to 30 to get 0.9967 accuracy
+# 3 epoch takes around 10min in my computer: i7 GTX1070 16G 
+
 batch_size = 86
 
 
@@ -156,6 +151,10 @@ history = model.fit_generator(datagen.flow(X_train,Y_train, batch_size=batch_siz
                               epochs = epochs, validation_data = (X_val,Y_val),
                               verbose = 2, steps_per_epoch=X_train.shape[0] // batch_size
                               , callbacks=[learning_rate_reduction])
+
+# verbose: Integer. 0, 1, or 2. Verbosity mode. 0 = silent, 1 = progress bar, 2 = one line per epoch.
+# epochs is to be understood as "final epoch". 
+
 
 print('training time: {}'.format(time()-t0))
 
@@ -167,23 +166,16 @@ results = model.predict(test)
 
 # select the indix with the maximum probability
 results = np.argmax(results,axis = 1)
-
 results = pd.Series(results,name="Label")
-
-
-
 submission = pd.concat([pd.Series(range(1,28001),name = "ImageId"),results],axis = 1)
-
 submission.to_csv(DATA_PATH+"cnn_mnist_datagen.csv",index=False)
 
 
 
 
-
-#################################################################################
-
-
+################################################################################
 # Plot the loss and accuracy curves for training and validation 
+
 fig, ax = plt.subplots(2,1)
 ax[0].plot(history.history['loss'], color='b', label="Training loss")
 ax[0].plot(history.history['val_loss'], color='r', label="validation loss",axes =ax[0])

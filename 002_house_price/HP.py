@@ -1,16 +1,15 @@
-import pandas as pd 
-import numpy as np
-from pandas import Series,DataFrame
-
-
-DATA_PATH='Projects\\datasets\\k001_house_price\\'
-
 from tools.data_loader import load_data
-
+DATA_PATH='Projects\\datasets\\k001_house_price\\'
 PROJECT_NAME = '002_house_price'
 DATA_PATH = 'datasets\\{}\\'.format(PROJECT_NAME)
 
 data_train, data_test = load_data(DATA_PATH)
+#----------------------------------------------------
+
+import pandas as pd 
+import numpy as np
+from pandas import Series,DataFrame
+
 
 data_train.info()
 data_train.shape

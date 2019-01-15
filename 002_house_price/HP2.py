@@ -1,29 +1,32 @@
+
+# load data
+from tools.data_loader import load_data
+PROJECT_NAME = '002_house_price'
+DATA_PATH = 'datasets\\{}\\'.format(PROJECT_NAME)
+
+train, test = load_data(DATA_PATH)
+
+#---------------------------------------------------
+
 import pandas as pd 
 # pd.set_option('display.float_format', lambda x: '{:.3f}'.format(x)) #Limiting floats output to 3 decimal points
 
 import numpy as np
 from pandas import Series,DataFrame
 
-
-DATA_PATH='Projects\\datasets\\k001_house_price\\'
-
-from tools.data_loader import load_data
-
-PROJECT_NAME = '002_house_price'
-DATA_PATH = 'datasets\\{}\\'.format(PROJECT_NAME)
-
-data_train, data_test = load_data(DATA_PATH)
-
-data_train.info()
-data_train.shape
-data_test.info()
-data_test.shape
-
-
-full_X = data_train.append(data_test, ignore_index=True)
+all_data = pd.concat((train, test)).reset_index(drop=True)
+ntrain = train.shape[0]
+# ntest = test.shape[0]
+y_train = train.SalePrice.values
 
 
 # ----------------------------------------------------------------------------
+
+train.info()
+train.shape
+test.info()
+test.shape
+
 import seaborn as sns
 color = sns.color_palette()
 sns.set_style('darkgrid')
@@ -39,8 +42,7 @@ from scipy.stats import norm, skew #for some statistics
 
 
 
-train = data_train
-test = data_test
+
 
 #Save the 'Id' column
 train_ID = train['Id']
@@ -53,8 +55,7 @@ test.drop("Id", axis = 1, inplace = True)
 
 
 # ---------------------------------------------------------------------------
-# the first step : normalize the predict value:
-
+# the first step : check we should normalize the predict value or not:
 
 import matplotlib.pyplot as plt
 fig, ax = plt.subplots()
@@ -112,12 +113,9 @@ res = stats.probplot(train['SalePrice'], plot=plt)
 plt.show()
 
 
+#---------------------------------------------------------------------------
+# feature engineering:
 
-# feature engineering
-
-ntrain = train.shape[0]
-ntest = test.shape[0]
-y_train = train.SalePrice.values
 all_data = pd.concat((train, test)).reset_index(drop=True)
 all_data.drop(['SalePrice'], axis=1, inplace=True)
 print("all_data size is : {}".format(all_data.shape))
@@ -152,7 +150,7 @@ sns.heatmap(corrmat, vmax=0.9, square=True)
 fillWithNA_columns = narsh[0:5].index  # narsh.index shows columns with NA value
 
 for c in fillWithNA_columns:
-    all_data[c] = all_data[c].fillna('No_such_thing')   
+    all_data[c] = all_data[c].fillna('None')   
 
 
 '''
@@ -204,15 +202,8 @@ missing_data = pd.DataFrame({'Missing Ratio' :all_data_na})
 missing_data.head()
 '''
 
-#MSSubClass=The building class
 all_data['MSSubClass'] = all_data['MSSubClass'].apply(str)
-
-
-#Changing OverallCond into a categorical variable
 all_data['OverallCond'] = all_data['OverallCond'].astype(str)
-
-
-#Year and month sold are transformed into categorical features.
 all_data['YrSold'] = all_data['YrSold'].astype(str)
 all_data['MoSold'] = all_data['MoSold'].astype(str)
 
@@ -262,12 +253,11 @@ for feat in skewed_features:
     
 #all_data[skewed_features] = np.log1p(all_data[skewed_features])
     
-all_data = pd.get_dummies(all_data)
+all_data = pd.get_dummies(all_data)  # one shot is enough, it will automatically choose object column
 print(all_data.shape)
 
 train = all_data[:ntrain]
 test = all_data[ntrain:]
-
 
 ##------------------------------------------------------------------------------------
 
@@ -321,16 +311,17 @@ print("ElasticNet score: {:.4f} ({:.4f})\n".format(score.mean(), score.std()))
 score = rmsle_cv(KRR)
 print("Kernel Ridge score: {:.4f} ({:.4f})\n".format(score.mean(), score.std()))
 score = rmsle_cv(GBoost)
-
+print("Gradient Boosting score: {:.4f} ({:.4f})\n".format(score.mean(), score.std()))
 
 
 '''
-print("Gradient Boosting score: {:.4f} ({:.4f})\n".format(score.mean(), score.std()))
 score = rmsle_cv(model_xgb)
 print("Xgboost score: {:.4f} ({:.4f})\n".format(score.mean(), score.std()))
 score = rmsle_cv(model_lgb)
 print("LGBM score: {:.4f} ({:.4f})\n" .format(score.mean(), score.std()))
 '''
+
+# stacking model:
 
 class AveragingModels(BaseEstimator, RegressorMixin, TransformerMixin):
     def __init__(self, models):
@@ -338,7 +329,7 @@ class AveragingModels(BaseEstimator, RegressorMixin, TransformerMixin):
         
     # we define clones of the original models to fit the data in
     def fit(self, X, y):
-        self.models_ = [clone(x) for x in self.models]
+        self.models_ = [clone(x) for x in self.models] # perhaps we have same model in models
         
         # Train cloned base models
         for model in self.models_:
@@ -359,6 +350,49 @@ score = rmsle_cv(averaged_models)
 print(" Averaged base models score: {:.4f} ({:.4f})\n".format(score.mean(), score.std()))
 
 
+class AveragingSingleModel(BaseEstimator, RegressorMixin, TransformerMixin):
+    
+    def __init__(self, base_model):
+        self.base_model = base_model
+    
+    def fit(self, X, y):
+        self.base_models_ = []
+        
+        kfold = KFold(n_splits=self.n_folds, shuffle=True, random_state=156)
+        for train_index, holdout_index in kfold.split(X, y):
+            instance = clone(self.base_model)
+            self.base_models_.append(instance)
+            instance.fit(X[train_index], y[train_index])
+    
+    def predict(self, X):
+        return np.column_stack([model.predict(X) for model in self.base_models]).mean(axis=1)
+
+class StackingSingleModel(BaseEstimator, RegressorMixin, TransformerMixin):
+    
+    def __init__(self, base_model, meta_model):
+        self.base_model = base_model
+        self.meta_model = meta_model
+    
+    def fit(self, X, y):
+        self.base_models_ = []
+        out_of_fold_predictions = np.zeros((X.shape[0], 1))
+        
+        kfold = KFold(n_splits=self.n_folds, shuffle=True, random_state=156)
+        for train_index, holdout_index in kfold.split(X, y):
+            instance = clone(self.base_model)
+            self.base_models_.append(instance)
+            instance.fit(X[train_index], y[train_index])
+            y_pred = instance.predict(X[holdout_index])
+            out_of_fold_predictions[holdout_index, 0] = y_pred
+            
+        self.meta_model_.fit(out_of_fold_predictions, y)
+    
+    def predict(self, X):
+        meta_features = np.column_stack([model.predict(X) for model in self.base_models]).mean(axis=1)
+        return self.meta_model_.predict(meta_features)
+
+
+# AveragingSingleModel + StackingSingleModel + multiple        
 class StackingAveragedModels(BaseEstimator, RegressorMixin, TransformerMixin):
     def __init__(self, base_models, meta_model, n_folds=5):
         self.base_models = base_models
@@ -406,7 +440,7 @@ def rmsle(y, y_pred):
 stacked_averaged_models.fit(train.values, y_train)
 stacked_train_pred = stacked_averaged_models.predict(train.values)
 stacked_pred = np.expm1(stacked_averaged_models.predict(test.values))
-print(rmsle(y_train, stacked_train_pred))
+print("score of stacked_model:", rmsle(y_train, stacked_train_pred))
 
 '''
 model_xgb.fit(train, y_train)
