@@ -1,4 +1,4 @@
 datasets/*
 .spyproject
-__pycahce__
+__pycache__
 desktop.ini
