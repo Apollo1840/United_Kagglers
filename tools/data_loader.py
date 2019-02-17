@@ -27,7 +27,7 @@ def load_data(DATA_PATH):
 '''
     how to load data?
     1) download the data to datasets, put it into the project folder
-    2) in py file, define the 3 variable above
+    2) in py file, define the PROJECT_FOLDER
     3) from tools.data_loader import load_data
     4) data_train, data_test = load_data(DATA_PATH)
     
