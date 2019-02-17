@@ -374,7 +374,6 @@ class StackingSingleModel(BaseEstimator, RegressorMixin, TransformerMixin):
         self.meta_model = meta_model
     
     def fit(self, X, y):
-        self.base_models_ = []
         out_of_fold_predictions = np.zeros((X.shape[0], 1))
         
         kfold = KFold(n_splits=self.n_folds, shuffle=True, random_state=156)

@@ -23,7 +23,7 @@ change_dir_to_DAT()
 from pandas_extend import columns_with_na
 
 
-os.chdir(os.getcwd() + '/Projects')
+os.chdir(os.getcwd() + '/001_titanic')
 
 from k000_Titanic_0 import load_data
 from k000_Titanic_0 import save_result

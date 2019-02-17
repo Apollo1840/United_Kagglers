@@ -56,7 +56,7 @@ class KdePloter(Ploter):
     plt.figure()
     
     def plot(self, vcol, lcol, **kwargs):
-        # vcol means the coumn name of the variable, the value
+        # vcol means the column name of the variable, the value
         # lcol means the column name of the label
         
         row = kwargs.get( 'row' , None )
