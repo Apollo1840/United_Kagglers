@@ -23,8 +23,10 @@ class NA_refiner(pde):
         dfna = self.df.isnull().sum()/self.df.shape[0]*100
         dfna = dfna[dfna > 0].sort_values(ascending = False)
         print(dfna)
-        dfna.plot("bar")
-        
+        try:
+            dfna.plot("bar")
+        except:
+            pass
         return dfna
         
          #return list(self.df.columns[self.df.isna().any()])

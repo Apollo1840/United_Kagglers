@@ -1,0 +1,4 @@
+datasets/*
+.spyproject
+__pycache__
+desktop.ini
