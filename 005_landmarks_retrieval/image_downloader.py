@@ -79,14 +79,13 @@ def download_img(data_file, out_dir):
     pool.close()
     pool.terminate()
     
-
-
 def loader():
     if len(sys.argv) != 3:
         print('Syntax: {} <data_file.csv> <output_dir/>'.format(sys.argv[0]))
         sys.exit(0)
     (data_file, out_dir) = sys.argv[1:]
     download_img(data_file, out_dir)
+    print("finished")
 
 
 

@@ -10,6 +10,7 @@ import os
 import pandas as pd
 import sys
 import numpy as np
+from image_downloader import download_img
 
 
 class imageLoader():
@@ -19,13 +20,12 @@ class imageLoader():
     
     def load(self, image_id):
         try:
-            imgdir = os.getcwd() + "\\{}\\{}.jpg".format(self.path,image_id)
+            imgdir = "{}\\{}.jpg".format(self.path,image_id)
             img = cv2.imread(imgdir)
         except:
             print("failed to get img from {}".format(imgdir))
         return img
-
-
+    
 def update_data(data_file, imgdir):
     
     df = pd.read_csv(data_file)
@@ -57,6 +57,9 @@ def main():
     (data_file, imgdir) = sys.argv[1:]
     
     update_data(data_file, imgdir)
+    
+
+
     
     
            
