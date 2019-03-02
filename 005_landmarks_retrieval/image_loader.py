@@ -6,11 +6,9 @@ Created on Sun Feb 24 11:57:58 2019
 """
 
 import cv2
-import os
 import pandas as pd
 import sys
 import numpy as np
-from image_downloader import download_img
 
 
 class imageLoader():

@@ -15,7 +15,7 @@ How to do it:
 1. How to use image_loader to load image
 
     from image_loader import imageLoader
-    il = imageLoader()
+    il = imageLoader("..//datasets//005_landmarks_retrieval//imgs")
     img_data = il.load("0b7d92lia32")
 
 
