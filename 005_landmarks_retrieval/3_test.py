@@ -10,6 +10,7 @@ import matlibplot.pyplot as plt
 from keras.applications.xception import preprocess_input
 import cv2
 
+MODEL_NAME = "trained_triplet_model"
 from tools.keras_model_handler import save_model, load_model
 triplet_model = load_model(MODEL_NAME)
 
