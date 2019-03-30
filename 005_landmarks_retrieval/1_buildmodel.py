@@ -7,17 +7,8 @@ Created on Sat Mar 30 15:32:16 2019
 
 from keras.layers import Input,Lambda,subtract,GlobalMaxPooling2D,Dense,GlobalAveragePooling2D,concatenate,Activation
 from keras.applications.xception import Xception as Net
-from keras.preprocessing import image
-
 from keras.models import Model
 
-import numpy as np
-import cv2
-import matplotlib.pyplot as plt
-
-#-----------------------
-# create model
-#-----------------------
 def create_model(d1,d2):
     # The triplet network takes 3 input images: 2 of the same class and 1 out-of-class sample
     input_tensor1 = Input(shape=(d1, d2, 3))
