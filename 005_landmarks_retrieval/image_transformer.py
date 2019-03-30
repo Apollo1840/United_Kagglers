@@ -84,4 +84,9 @@ class imageTransformer():
         
     def __call__(self, image):
         return self.transformer(image)        
+    
+    
+    
+if __name__=="__main__":
+    pass
         
