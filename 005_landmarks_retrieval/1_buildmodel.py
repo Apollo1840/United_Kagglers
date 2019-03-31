@@ -47,8 +47,10 @@ def create_model(d1,d2):
     #  concatenate both distances and apply softmax so we get values from 0-1
     d = concatenate([d1,d2])
     d = Activation('softmax')(d)
+    
     # build the model and show a summary
     model = Model(inputs=[input_tensor1,input_tensor2,input_tensor3], outputs=d)
+    
     # a second model that can be used as metric between input 1 and input 2
     metric = Model(inputs=[input_tensor1,input_tensor2], outputs=d1)
     model.summary()

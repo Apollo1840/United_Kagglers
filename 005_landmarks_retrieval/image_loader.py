@@ -13,7 +13,7 @@ import numpy as np
 
 class imageLoader():
     
-    def __init__(self, images_folder):
+    def __init__(self, images_folder = "..//datasets//005_landmarks_retrieval//imgs"):
         self.path = images_folder
     
     def load(self, image_id):
@@ -21,7 +21,7 @@ class imageLoader():
             imgdir = "{}\\{}.jpg".format(self.path,image_id)
             img = cv2.imread(imgdir)
         except:
-            print("failed to get img from {}".format(imgdir))
+            print("failed to get img from {}".format(imgdir))     
         return img
     
 def update_data(data_file, imgdir):
