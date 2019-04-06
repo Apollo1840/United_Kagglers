@@ -22,13 +22,13 @@ validation_generator = DataGenerator('validation', labels=None) #because labels 
 triplet_model.compile(optimizer='sgd', loss='categorical_crossentropy')
 
 # training 
-print("################# fittinng.... ####################")
+print("\n ################# fittinng.... #################### \n")
 triplet_model.fit_generator(generator=training_generator,
                     validation_data=validation_generator,
-                    use_multiprocessing=True,
-                    workers=4)
+                    use_multiprocessing=False,
+                    workers=2)
 
-print("################# saving   ########################")
+print("\n ################# saving   ######################## \n")
 save_model(triplet_model, "trained_" + MODEL_NAME)
 
 
