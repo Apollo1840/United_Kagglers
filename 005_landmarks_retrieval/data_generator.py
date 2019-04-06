@@ -19,12 +19,13 @@ from image_transformer import imageTransformer
 PROJECT_NAME = '005_landmarks_retrieval'
 DATA_PATH = 'datasets\\{}\\'.format(PROJECT_NAME)
 
+IMG_SIZE = 229
 
 class CaseApi():
     
     def __init__(self):
         self.il = imageLoader("datasets//005_landmarks_retrieval//imgs")
-        self.it = imageTransformer(125)
+        self.it = imageTransformer(IMG_SIZE)
         
     def load_img(self, ID):    
         return self.il.load(ID)
@@ -129,7 +130,7 @@ def test_tools():
 class DataGenerator(keras.utils.Sequence):
     'Generates data for Keras'
     def __init__(self, list_IDs, labels, batch_size=32, 
-                 dim=(3, 125, 125), n_channels=3,
+                 dim=(3, IMG_SIZE, IMG_SIZE), n_channels=3,
                  n_classes=2, output_dim=2, shuffle=True):
         
         'Initialization'
@@ -180,9 +181,8 @@ class DataGenerator(keras.utils.Sequence):
         # Initialization
         X = np.empty((self.batch_size, *self.dim, self.n_channels))
         y = np.empty((self.batch_size, self.output_dim), dtype=int)
-        
+    
         cache_ID = ["00cfd9bbf55a241e"]
-        
         
         # Generate data
         for i, ID in enumerate(list_IDs_temp):
@@ -195,5 +195,6 @@ class DataGenerator(keras.utils.Sequence):
             # Store class
             y[i,] = [1,0]
         
+        X = np.swapaxes(X, 0, 1)
         # y = keras.utils.to_categorical(y, num_classes=self.n_classes)
-        return X, y
+        return [X[0], X[1], X[2]], y

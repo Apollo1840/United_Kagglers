@@ -24,6 +24,7 @@ plot_imgs(img3)
 dg = DataGenerator("test", None)
 X, y = dg.__getitem__(1)
 # print(X)
-print(X.shape)
+print(len(X))
+print(X[0].shape)
 print(y.shape)
 
