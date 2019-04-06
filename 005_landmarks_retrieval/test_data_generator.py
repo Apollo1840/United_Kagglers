@@ -6,10 +6,8 @@ Created on Sat Apr  6 08:30:38 2019
 
 """
 
-
 from data_generator import triplet_generation
 from data_generator import DataGenerator
-
 
 tg = triplet_generation()
 
@@ -21,3 +19,11 @@ print(img3[0].shape)
 from tools.plot_image import plot_imgs
 
 plot_imgs(img3)
+
+
+dg = DataGenerator("test", None)
+X, y = dg.__getitem__(1)
+# print(X)
+print(X.shape)
+print(y.shape)
+

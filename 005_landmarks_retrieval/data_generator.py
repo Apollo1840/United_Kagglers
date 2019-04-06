@@ -129,8 +129,8 @@ def test_tools():
 class DataGenerator(keras.utils.Sequence):
     'Generates data for Keras'
     def __init__(self, list_IDs, labels, batch_size=32, 
-                 dim=(125,125,32), n_channels=3,
-                 n_classes=2, shuffle=True):
+                 dim=(3, 125, 125), n_channels=3,
+                 n_classes=2, output_dim=2, shuffle=True):
         
         'Initialization'
         self.tg = triplet_generation()
@@ -148,6 +148,7 @@ class DataGenerator(keras.utils.Sequence):
         
         self.n_channels = n_channels
         self.n_classes = n_classes
+        self.output_dim = output_dim
         self.shuffle = shuffle
         self.on_epoch_end()
 
@@ -178,15 +179,21 @@ class DataGenerator(keras.utils.Sequence):
         'Generates data containing batch_size samples' # X : (n_samples, *dim, n_channels)
         # Initialization
         X = np.empty((self.batch_size, *self.dim, self.n_channels))
-        y = np.empty((self.batch_size), dtype=int)
-
+        y = np.empty((self.batch_size, self.output_dim), dtype=int)
+        
+        cache_ID = ["00cfd9bbf55a241e"]
+        
+        
         # Generate data
         for i, ID in enumerate(list_IDs_temp):
-            # Store sample
-            X[i,] = self.tg.get_one_input_tensor(ID)
-
+            try:
+                # Store sample
+                X[i,] = self.tg.get_one_input_tensor(ID)
+                cache_ID.append(ID)
+            except AttributeError: # sometimes there is no similiar img, it will arise this error because of the Nont type
+                 X[i,] = self.tg.get_one_input_tensor(np.random.choice(cache_ID, 1)[0])
             # Store class
-            y[i] = [1, 0]
+            y[i,] = [1,0]
         
-        y = keras.utils.to_categorical(y, num_classes=self.n_classes)
+        # y = keras.utils.to_categorical(y, num_classes=self.n_classes)
         return X, y
