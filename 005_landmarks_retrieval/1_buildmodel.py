@@ -9,6 +9,8 @@ from keras.layers import Input,Lambda,subtract,GlobalMaxPooling2D,Dense,GlobalAv
 from keras.applications.xception import Xception as Net
 from keras.models import Model
 
+from data_generator import IMG_SIZE
+
 def create_model(d1,d2):
     # The triplet network takes 3 input images: 2 of the same class and 1 out-of-class sample
     input_tensor1 = Input(shape=(d1, d2, 3))
@@ -72,7 +74,7 @@ def create_model(d1,d2):
         
     return model,metric
     
-triplet_model, metric = create_model(229,229)
+triplet_model, metric = create_model(IMG_SIZE, IMG_SIZE)
 
 from tools.keras_model_handler import save_model
 save_model(triplet_model, "triplet_model")
