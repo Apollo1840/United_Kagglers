@@ -14,7 +14,8 @@ warnings.filterwarnings("ignore")
 from image_loader import imageLoader
 
 il = imageLoader("..//datasets//005_landmarks_retrieval//imgs")
-img = il.load("00cfd9bbf55a241e")
+ID = "00cfd9bbf55a241e"
+img = il.load(ID)
 
 print(img.shape)
 

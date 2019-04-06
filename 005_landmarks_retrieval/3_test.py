@@ -81,3 +81,17 @@ for k in range(4):
         plt.subplot(4,3,(k*3)+3)
         plt.title('less similar to input 1')
 plt.savefig('example.png')
+
+
+# test on real images
+from data_generator import triplet_generation
+tg = triplet_generation()
+ID = "00cfd9bbf55a241e"
+img3 = tg.get_one_input_tensor(ID)
+distances = triplet_model.predict(img3)[0]
+print(distances)
+
+
+
+
+

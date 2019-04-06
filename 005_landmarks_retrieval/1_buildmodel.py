@@ -66,8 +66,9 @@ def create_model(d1,d2):
         if l.name == 'summation':
             print('fixing weights of summation layer')
             l.trainable=False
+    
     # compile model
-    model.compile(optimizer='sgd', loss='categorical_crossentropy')
+    # model.compile(optimizer='sgd', loss='categorical_crossentropy')
         
     return model,metric
     
