@@ -11,7 +11,7 @@ Numpy and matplotlib is needed, besides that:
     pip install torchvision
     pip install scikit-image
     
-More detailed information see the end of this markdown.
+For more detailed information, please check the end of this markdown.
 
 
 ## How to download imgs
